@@ -12,6 +12,7 @@ const NewGame = ({ content }) => {
 
     return (
         <View style={{flex: 1, alignItems: 'center', top: 50}}>
+            <Text>두 더 지 게 임</Text>
             <MoleGame/>
         </View>
     );
