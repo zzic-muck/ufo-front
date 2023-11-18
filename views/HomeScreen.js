@@ -1,12 +1,10 @@
 import * as React from 'react';
 import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import SoundExample from "../effect/sound";
-import SoundPlayer from "../effect/sound";
 
 const windowWidth = Dimensions.get('window').width;
 
 function HomeScreen({navigation}) {
-    return (<View style={{flex: 1, alignItems: 'center', justifyContent: 'center' ,marginTop:50}}>
+    return (<View style={{flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 50}}>
         <Text>Home Screen</Text>
         <View style={styles.buttonContainer}>
             <View style={{flexDirection: 'row'}}>
@@ -46,8 +44,7 @@ function HomeScreen({navigation}) {
 
 const styles = StyleSheet.create({
     buttonContainer: {
-        flex: 1,
-        justifyContent: 'flex-end',
+        flex: 1, justifyContent: 'flex-end',
     },
 
     button: {
@@ -55,12 +52,8 @@ const styles = StyleSheet.create({
         paddingVertical: 20,         // 세로 패딩
         paddingHorizontal: 20,       // 가로 패딩
         borderRadius: 5,             // 테두리 둥글게
-        alignItems: 'center',
-        marginVertical: 5,           // 버튼 간의 수직 마진
-        justifyContent: 'space-between',
-        marginHorizontal: 5,
-        marginBottom:20,
-        width: (windowWidth-50) / 5,
+        alignItems: 'center', marginVertical: 5,           // 버튼 간의 수직 마진
+        justifyContent: 'space-between', marginHorizontal: 5, marginBottom: 20, width: (windowWidth - 50) / 5,
     },
 
     text: {
