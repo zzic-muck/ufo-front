@@ -3,17 +3,17 @@ import {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './views/HomeScreen';
-import DetailsScreen from './views/DetailsScreen';
 import LadderScreen from "./views/LadderScreen";
 import {Button, StatusBar, View, StyleSheet} from "react-native";
 import RouletteScreen from "./views/RouletteScreen";
 import NewGame from "./views/NewGame";
+import ChatRoom from "./views/chatScreen";
+
 
 const Stack = createNativeStackNavigator();
 
 function App() {
 
-    const [topContent, setTopContent] = useState('content1');
 
     return (
         <View style={styles.container}>
@@ -21,10 +21,10 @@ function App() {
                 <StatusBar hidden={true}/>
                 <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
                     <Stack.Screen name="Home" component={HomeScreen}/>
-                    <Stack.Screen name="Details" component={DetailsScreen}/>
                     <Stack.Screen name="Ladder" component={LadderScreen}/>
                     <Stack.Screen name="Roulette" component={RouletteScreen}/>
                     <Stack.Screen name="NewGame" component={NewGame}/>
+                    <Stack.Screen name="Chat" component={ChatRoom}/>
                 </Stack.Navigator>
             </NavigationContainer>
         </View>

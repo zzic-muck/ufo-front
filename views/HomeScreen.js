@@ -36,8 +36,8 @@ function HomeScreen({navigation}) {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('None')}>
-                    <Text style={styles.text}>기부하기</Text>
+                    onPress={() => navigation.navigate('Chat')}>
+                    <Text style={styles.text}>채팅하기</Text>
                 </TouchableOpacity>
             </View>
         </View>
