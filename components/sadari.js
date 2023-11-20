@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Animated, Dimensions, Image, TouchableOpacity, View, Text } from 'react-native';
+import {Animated, Dimensions, Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -10,7 +10,7 @@ const Sadari = ({cnt}) => {
     const [finalIndexes, setFinalIndexes] = useState(Array(cnt).fill(null)); // 각 세로줄의 최종 lineIndex를 저장하는 state
     const columnWidth = windowWidth / (1.5 * cnt);
     const imageUriArray = ['https://i.namu.wiki/i/NB_qC6YRjH7hv6elNznBIBOBZ5AwE-PKYEWKcU03aFzGsc60bOt9KLxocyvB01OxAbOG8joW9mgkShFmTaTKsQ.webp'];
-
+    const [userTexts, setUserTexts] = useState(Array(cnt).fill("??"));
 
     useEffect(() => {
         const newPositions = Array(cnt).fill().map(() => new Animated.ValueXY({x: 0, y: 0}));
@@ -18,24 +18,31 @@ const Sadari = ({cnt}) => {
 
         const newHorizontalLines = [];
         const columnsWithHorizontalLines = Array(cnt).fill().map(() => []);
+        const gap = 50;
 
         for (let i = 0; i < cnt - 1; i++) {
+            const randomLineCnt = Math.floor(Math.random() * 3) + 1;
+            for (let j = 0; j < randomLineCnt; j++) { // 각 세로선당 3개의 가로선
+                const yPosition = Math.floor(Math.random() * 300) + 200; // 무작위 위치 설정
+                newHorizontalLines.push({
+                    fromColumn: i, toColumn: i + 1, yPosition: yPosition,
+                });
 
-            const yPosition = Math.random() * 300 + 100;
-            newHorizontalLines.push({
-                fromColumn: i, toColumn: i + 1, yPosition: yPosition,
+                // 현재 세로선에 시작하는 가로선 정보 추가
+                columnsWithHorizontalLines[i].push({
+                    toColumn: i + 1, yPosition: yPosition,
+                });
+
+                // 인접한 세로선에 연결되는 가로선 정보 추가
+                columnsWithHorizontalLines[i + 1].push({
+                    fromColumn: i, yPosition: yPosition,
+                });
+            }
+            setUserTexts(prevTexts => {
+                const newTexts = [...prevTexts];
+                newTexts[i+1] = "??";
+                return newTexts;
             });
-
-            // 현재 세로선에 시작하는 가로선 정보 추가
-            columnsWithHorizontalLines[i].push({
-                toColumn: i + 1, yPosition: yPosition,
-            });
-
-            // 인접한 세로선에 연결되는 가로선 정보 추가
-            columnsWithHorizontalLines[i + 1].push({
-                fromColumn: i, yPosition: yPosition,
-            });
-
         }
         console.log(columnsWithHorizontalLines);
         setHorizontalLines(newHorizontalLines);
@@ -46,6 +53,13 @@ const Sadari = ({cnt}) => {
         }
     }, [cnt]);
 
+    const handleUserTextChange = (text, index) => {
+        setUserTexts(prevTexts => {
+            const newTexts = [...prevTexts];
+            newTexts[index] = text;
+            return newTexts;
+        });
+    };
 
     const moveImage = index => {
 
@@ -55,9 +69,8 @@ const Sadari = ({cnt}) => {
         let movto = 0;
         let lineIndex = index;
 
-        for (let i = 0; i < 3; i++) {
+        while (currentY !== 600) {
             let nowpos = 0;
-            console.log("반복횟수", i);
             for (let j = 0; j < columnsWithHorizontalLines[lineIndex].length; j++) {
                 if (columnsWithHorizontalLines[lineIndex][j].yPosition > currentY) {
                     sequence.push(Animated.timing(positions[index].y, {
@@ -93,12 +106,9 @@ const Sadari = ({cnt}) => {
             }));
 
 
-            console.log("어디로 갈까요", lineIndex);
-
             let lastidx = columnsWithHorizontalLines[lineIndex].length - 1;
 
             if (currentY === columnsWithHorizontalLines[lineIndex][lastidx].yPosition) {
-                console.log("끝난듯??", i);
                 sequence.push(Animated.timing(positions[index].y, {
                     toValue: 600, duration: (500 - currentY) * 1, useNativeDriver: false
                 }));
@@ -106,7 +116,6 @@ const Sadari = ({cnt}) => {
                 break;
             }
         }
-        console.log(" 얘 결과 값", lineIndex);
         setFinalIndexes(prevIndexes => {
             const newIndexes = [...prevIndexes];
             newIndexes[index] = lineIndex;
@@ -115,20 +124,24 @@ const Sadari = ({cnt}) => {
 
         Animated.sequence(sequence).start();
     };
+    //한번에 다 움직임
+    const moveAllImages = () => {
+        for (let i = 0; i < cnt; i++) {
+            moveImage(i);
+        }
+    };
 
     const renderHorizontalLine = (index) => {
-        const line = horizontalLines[index];
-        if (line && index < cnt - 1) {
-            return (<View style={{
-                position: 'absolute',
-                width: columnWidth,
-                height: 10,
-                backgroundColor: 'black',
-                left: columnWidth / 2,
-                top: line.yPosition
-            }}/>);
-        }
-        return null;
+        const lines = horizontalLines.filter(line => line.fromColumn === index || line.toColumn === index);
+
+        return lines.map((line, lineIndex) => (<View key={`line-${index}-${lineIndex}`} style={{
+            position: 'absolute',
+            width: columnWidth,
+            height: 10,
+            backgroundColor: 'black',
+            left: line.fromColumn === index ? columnWidth / 2 : -columnWidth / 2,
+            top: line.yPosition
+        }}/>));
     };
 
 
@@ -153,15 +166,27 @@ const Sadari = ({cnt}) => {
                         />
                     </Animated.View>
                 </TouchableOpacity>
-                {finalIndexes[i] !== null && (
-                    <Text style={{ position: 'absolute', bottom: 0, left: columnWidth / 2, color: 'black' }}>
-                        {finalIndexes[i]}
-                    </Text>
-                )}
-                <Text style={{ position: 'absolute', top: 700, left: columnWidth / 2 - 50, color: 'black' }}>
-                    {"여기에 원하는 텍스트"}
-                </Text>
+                <TextInput
+                    style={{
+                        position: 'absolute',
+                        top: 700,
+                        left: columnWidth / 2,
+                        color: 'black',
+                        width: 100,
+                        height: 40,
+                        borderColor: 'gray',
+                        borderWidth: 1
+                    }}
+                    onChangeText={(text) => handleUserTextChange(text, i)}
+                    value={userTexts[i]}
+                />
             </View>))}
+
+        <TouchableOpacity onPress={moveAllImages}>
+            <Text style={{color: 'blue', marginTop: 20}}>모든 이미지 함께 움직이기</Text>
+        </TouchableOpacity>
+
+
     </View>);
 };
 

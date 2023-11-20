@@ -31,10 +31,6 @@ function LadderScreen() {
 
             <Sadari cnt={cnt}/>
 
-            <View style={styles.bottomView}>
-                <Text>축하 ㅋㅋ </Text>
-            </View>
-
         </View>
 
     );
