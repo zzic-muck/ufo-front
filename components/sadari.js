@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Animated, Dimensions, Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Animated, Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -12,6 +12,28 @@ const Sadari = ({cnt}) => {
     const imageUriArray = ['https://i.namu.wiki/i/NB_qC6YRjH7hv6elNznBIBOBZ5AwE-PKYEWKcU03aFzGsc60bOt9KLxocyvB01OxAbOG8joW9mgkShFmTaTKsQ.webp'];
     const [userTexts, setUserTexts] = useState(Array(cnt).fill("??"));
 
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const openModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const renderModalContent = () => {
+        return finalIndexes.map((finalIndex, i) => {
+            // 유효한 결과를 확인하고, 해당하는 텍스트를 표시
+            const resultText = finalIndex !== null && userTexts[finalIndex]
+                ? userTexts[finalIndex]
+                : "No result";
+            return (
+                <View key={`result-${i}`} style={styles.resultRow}>
+                    <Text>Column {i} goes to: {resultText}</Text>
+                </View>
+            );
+        });
+    };
+
+
+
     useEffect(() => {
         const newPositions = Array(cnt).fill().map(() => new Animated.ValueXY({x: 0, y: 0}));
         setPositions(newPositions);
@@ -22,8 +44,10 @@ const Sadari = ({cnt}) => {
 
         for (let i = 0; i < cnt - 1; i++) {
             const randomLineCnt = Math.floor(Math.random() * 3) + 1;
+            let lastYPosition = 100; // 각 세로선에 대한 초기 yPosition 설정
             for (let j = 0; j < randomLineCnt; j++) { // 각 세로선당 3개의 가로선
-                const yPosition = Math.floor(Math.random() * 300) + 200; // 무작위 위치 설정
+                const yPosition = lastYPosition + Math.floor(Math.random() * 150) + 50;
+                lastYPosition = yPosition;
                 newHorizontalLines.push({
                     fromColumn: i, toColumn: i + 1, yPosition: yPosition,
                 });
@@ -40,7 +64,7 @@ const Sadari = ({cnt}) => {
             }
             setUserTexts(prevTexts => {
                 const newTexts = [...prevTexts];
-                newTexts[i+1] = "??";
+                newTexts[i + 1] = "??";
                 return newTexts;
             });
         }
@@ -144,6 +168,36 @@ const Sadari = ({cnt}) => {
         }}/>));
     };
 
+    const renderLines = () => {
+        return positions.map((_, i) => (
+            <View key={`line-${i}`} style={{position: 'relative', width: columnWidth, alignItems: 'center'}}>
+                {renderHorizontalLine(i)}
+                <View style={{
+                    position: 'absolute',
+                    width: 10,
+                    height: 600,
+                    backgroundColor: 'black',
+                    left: columnWidth / 2 - 5,
+                    top: 90
+                }}/>
+            </View>
+        ));
+    };
+
+    // 이미지를 렌더링하는 함수
+    const renderImages = () => {
+        return positions.map((position, i) => (
+            <TouchableOpacity key={`image-${i}`} onPress={() => moveImage(i)}>
+                <Animated.View style={{transform: [{translateX: position.x}, {translateY: position.y}]}}>
+                    <Image
+                        source={{uri: imageUriArray[i % imageUriArray.length]}}
+                        style={{width: 50, height: 50, margin: 5}}
+                    />
+                </Animated.View>
+            </TouchableOpacity>
+        ));
+    };
+
 
     return (<View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 100}}>
         {positions.map((position, i) => (
@@ -181,13 +235,45 @@ const Sadari = ({cnt}) => {
                     value={userTexts[i]}
                 />
             </View>))}
-
+        <View>
         <TouchableOpacity onPress={moveAllImages}>
             <Text style={{color: 'blue', marginTop: 20}}>모든 이미지 함께 움직이기</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={{marginTop: 20}} onPress={openModal}>
+            <Text>View All Results</Text>
+        </TouchableOpacity>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={() => setIsModalVisible(false)}
+            >
+                <View style={styles.modalContent}>
+                    {renderModalContent()}
+                    <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+                        <Text>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+        </View>
 
     </View>);
 };
+
+
+const styles = StyleSheet.create({
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        margin: 50,
+        borderRadius: 10,
+    },
+    resultRow: {
+        marginBottom: 10,
+    },
+});
+
 
 export default Sadari;

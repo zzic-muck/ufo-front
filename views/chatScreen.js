@@ -92,7 +92,7 @@ const ChatRoom = () => {
 
     return (
         <View style={{flex: 1, padding: 20}}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Room: {roomTitle}</Text> {/* 채팅방 제목 표시 */}
+            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Room: {roomTitle}</Text> {"zz"}
             <Button title="Create Room" onPress={createRoom}/>
 
             <ScrollView style={{flex: 1}}>
